@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create / Edit Blog - NexusBlog</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Navigation Header -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon"><i class="fa-solid fa-cube"></i></div>
+        <span>Nexus<span class="gradient-text">Blog</span></span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+        <li><a href="create-blog.html" class="nav-link active">Create Blog</a></li>
+      </ul>
+
+      <div class="nav-actions" id="nav-actions-wrap">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content container">
+    <div class="dashboard-header" style="margin-bottom: 1.5rem;">
+      <div>
+        <h1 id="editor-page-title" style="font-size: 2rem;">Write New Blog Post</h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Craft engaging content, add custom formatting, tags, and cover images.</p>
+      </div>
+      <div style="display: flex; gap: 0.75rem;">
+        <button id="live-preview-btn" class="btn btn-secondary"><i class="fa-regular fa-eye"></i> Live Preview</button>
+        <button id="save-draft-btn" class="btn btn-secondary"><i class="fa-regular fa-bookmark"></i> Save Draft</button>
+        <button id="publish-btn" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> Publish Story</button>
+      </div>
+    </div>
+
+    <div class="editor-grid">
+      <!-- Left Main Editor Column -->
+      <div class="editor-card">
+        <div class="form-group">
+          <label class="form-label" for="blog-title">Blog Title *</label>
+          <input type="text" id="blog-title" class="input-control" style="font-size: 1.3rem; font-weight: 700; font-family: var(--font-heading);" placeholder="Enter an eye-catching title..." required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="blog-excerpt">Short Summary / Excerpt</label>
+          <textarea id="blog-excerpt" class="input-control" style="min-height: 70px; resize: vertical;" placeholder="Briefly describe what this article is about for card previews..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Article Body & Content *</label>
+          
+          <!-- Formatting Toolbar -->
+          <div class="editor-toolbar">
+            <button class="tool-btn" data-tag="b" title="Bold"><i class="fa-solid fa-bold"></i></button>
+            <button class="tool-btn" data-tag="i" title="Italic"><i class="fa-solid fa-italic"></i></button>
+            <button class="tool-btn" data-tag="h2" title="Subheading H2"><i class="fa-solid fa-heading"></i></button>
+            <button class="tool-btn" data-tag="quote" title="Quote Block"><i class="fa-solid fa-quote-left"></i></button>
+            <button class="tool-btn" data-tag="code" title="Code Snippet"><i class="fa-solid fa-code"></i></button>
+            <button class="tool-btn" data-tag="ul" title="Bullet List"><i class="fa-solid fa-list-ul"></i></button>
+          </div>
+
+          <textarea id="blog-content" class="content-textarea" placeholder="Start typing your story here... You can use HTML tags or the toolbar above for formatting." required></textarea>
+        </div>
+      </div>
+
+      <!-- Right Settings Sidebar Column -->
+      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        
+        <!-- Category & Tags Box -->
+        <div class="editor-card" style="padding: 1.5rem;">
+          <h3 style="font-size: 1.1rem; margin-bottom: 1rem;"><i class="fa-solid fa-sliders"></i> Post Settings</h3>
+          
+          <div class="form-group">
+            <label class="form-label" for="blog-category">Primary Category</label>
+            <select id="blog-category" class="input-control">
+              <option value="Web Dev">Web Dev</option>
+              <option value="Design">Design UI/UX</option>
+              <option value="AI">Artificial Intelligence</option>
+              <option value="Tech">Engineering</option>
+              <option value="Lifestyle">Career & Lifestyle</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tags (Press Enter or Comma)</label>
+            <div class="tags-input-container">
+              <div id="tags-list" style="display: flex; flex-wrap: wrap; gap: 0.4rem;"></div>
+              <input type="text" id="tag-input" placeholder="Add tag..." style="background: none; color: var(--text-main); font-size: 0.85rem; width: 100px; padding: 0.2rem;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Cover Image Box -->
+        <div class="editor-card" style="padding: 1.5rem;">
+          <h3 style="font-size: 1.1rem; margin-bottom: 1rem;"><i class="fa-solid fa-image"></i> Cover Image</h3>
+          
+          <div class="form-group">
+            <label class="form-label" for="cover-url">Image URL</label>
+            <input type="url" id="cover-url" class="input-control" placeholder="https://images.unsplash.com/..." value="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80">
+          </div>
+
+          <label class="form-label">Or Pick Preset Artwork</label>
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+            <button class="preset-cover-btn btn btn-secondary btn-sm" data-url="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80">Code</button>
+            <button class="preset-cover-btn btn btn-secondary btn-sm" data-url="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80">Cyber</button>
+            <button class="preset-cover-btn btn btn-secondary btn-sm" data-url="https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=1200&q=80">AI Art</button>
+          </div>
+
+          <div class="cover-preview-box">
+            <span id="cover-preview-placeholder" style="color: var(--text-dim); font-size: 0.85rem; display: none;">Cover Preview</span>
+            <img id="cover-preview-img" src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80" alt="Cover Preview">
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Article View Modal for Live Preview -->
+  <div id="article-modal" class="modal-overlay">
+    <div class="modal-container">
+      <button class="modal-close-btn" onclick="appEngine.closeArticleModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="article-header"></div>
+      <img id="modal-cover-img" class="article-cover" src="" alt="Cover">
+      <div id="modal-article-body" class="article-body"></div>
+      <div class="comments-section">
+        <h3><i class="fa-regular fa-comments"></i> Discussion & Comments</h3>
+        <div id="modal-comment-list" class="comment-list" style="margin-top: 1rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="js/editor.js"></script>
+</body>
+</html>
