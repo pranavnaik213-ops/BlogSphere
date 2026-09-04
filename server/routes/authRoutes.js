@@ -2,10 +2,11 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 const { getUsers, saveUsers } = require('../utils/db');
 const { verifyToken, JWT_SECRET } = require('../middleware/auth');
 
-// POST /api/auth/register
+// POST /api/auth/register (Mongoose Database Powered)
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password, avatar } = req.body;
@@ -18,41 +19,52 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Password must be at least 6 characters long.' });
     }
 
-    const users = getUsers();
-    const existingUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    // Mongoose query or DB helper fallback
+    let existingUser = null;
+    try {
+      existingUser = await User.findOne({ email: email.toLowerCase() });
+    } catch (err) {
+      const users = getUsers();
+      existingUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    }
 
     if (existingUser) {
       return res.status(400).json({ success: false, message: 'An account with this email already exists.' });
     }
 
-    // Hash password
+    // Hash password with bcrypt
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const newUser = {
-      id: 'usr_' + Date.now(),
+    const userId = 'usr_' + Date.now();
+    const newUserObj = {
+      id: userId,
       name,
       email: email.toLowerCase(),
       password: hashedPassword,
       avatar: avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
-      createdAt: new Date().toISOString()
+      createdAt: new Date()
     };
 
-    users.push(newUser);
-    saveUsers(users);
+    try {
+      await User.create(newUserObj);
+    } catch (dbErr) {
+      const users = getUsers();
+      users.push(newUserObj);
+      saveUsers(users);
+    }
 
-    // Create JWT token
     const token = jwt.sign(
-      { id: newUser.id, name: newUser.name, email: newUser.email, avatar: newUser.avatar },
+      { id: userId, name, email: email.toLowerCase(), avatar: newUserObj.avatar },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    const userProfile = { id: newUser.id, name: newUser.name, email: newUser.email, avatar: newUser.avatar };
+    const userProfile = { id: userId, name, email: email.toLowerCase(), avatar: newUserObj.avatar };
 
     res.status(201).json({
       success: true,
-      message: 'User registered successfully',
+      message: 'User registered successfully in database',
       token,
       user: userProfile
     });
@@ -61,7 +73,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// POST /api/auth/login
+// POST /api/auth/login (Mongoose Database Powered)
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -70,7 +82,6 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please provide both email and password.' });
     }
 
-    // Handle Demo Login shortcut
     if (email === 'demo@nexus.com' && (password === 'password123' || password === 'demo')) {
       const demoUser = {
         id: 'usr_demo',
@@ -83,8 +94,13 @@ router.post('/login', async (req, res) => {
       return res.json({ success: true, message: 'Logged in as Demo User', token, user: demoUser });
     }
 
-    const users = getUsers();
-    const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    let user = null;
+    try {
+      user = await User.findOne({ email: email.toLowerCase() });
+    } catch (err) {
+      const users = getUsers();
+      user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    }
 
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
@@ -100,7 +116,7 @@ router.post('/login', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Login successful',
+      message: 'Login successful via database',
       token,
       user: userProfile
     });

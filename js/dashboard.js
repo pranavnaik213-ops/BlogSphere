@@ -134,7 +134,7 @@ function setupSearchAndFilters(user) {
 
 // Global action helpers
 window.viewPost = (id) => {
-  window.appEngine.openArticleModal(id);
+  window.location.href = `blog-detail.html?id=${id}`;
 };
 
 window.confirmDeletePost = async (id) => {

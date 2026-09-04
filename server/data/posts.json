@@ -44,9 +44,15 @@
       "HTML5",
       "CSS3"
     ],
-    "views": 1420,
+    "views": 1425,
     "likes": 384,
     "comments": [
+      {
+        "id": "c_1788531879528",
+        "author": "Guest Reader",
+        "text": "This is a great article! Very clear explanation of frontend concepts.",
+        "date": "Just now"
+      },
       {
         "id": "c1",
         "author": "Alex Rivers",
@@ -59,7 +65,8 @@
         "text": "Very clear explanation of semantic HTML structures.",
         "date": "5 hours ago"
       }
-    ]
+    ],
+    "liked": false
   },
   {
     "id": "post-2",

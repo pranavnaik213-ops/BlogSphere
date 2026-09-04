@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Article Details - NexusBlog</title>
+  <meta name="description" content="Read full article on NexusBlog Platform.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .detail-hero {
+      position: relative;
+      width: 100%;
+      height: 420px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-lg);
+    }
+    .detail-hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .detail-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(9, 13, 22, 0.2) 0%, rgba(9, 13, 22, 0.95) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 2.5rem;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 3fr 1fr;
+      gap: 2.5rem;
+    }
+    .author-card-widget {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      position: sticky;
+      top: 90px;
+    }
+    .share-btns {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .share-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bg-tertiary);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-color);
+      transition: var(--transition);
+    }
+    .share-btn:hover {
+      background: var(--primary);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Header -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon"><i class="fa-solid fa-cube"></i></div>
+        <span>Nexus<span class="gradient-text">Blog</span></span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+        <li><a href="create-blog.html" class="nav-link">Create Blog</a></li>
+      </ul>
+
+      <div class="nav-actions" id="nav-actions-wrap">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content container">
+
+    <!-- Back Button -->
+    <a href="index.html" class="btn btn-secondary btn-sm" style="margin-bottom: 1.5rem;">
+      <i class="fa-solid fa-arrow-left"></i> Back to Articles
+    </a>
+
+    <!-- Detail Hero Section -->
+    <div class="detail-hero">
+      <img id="detail-cover-img" src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80" alt="Article Cover">
+      <div class="detail-hero-overlay">
+        <span id="detail-category" class="hero-badge" style="margin-bottom: 0.75rem; width: fit-content;">Web Dev</span>
+        <h1 id="detail-title" style="font-size: 2.4rem; line-height: 1.2; margin-bottom: 1rem;">Article Title</h1>
+        
+        <div style="display: flex; align-items: center; gap: 1.5rem; color: #fff; font-size: 0.9rem; flex-wrap: wrap;">
+          <div class="author-info">
+            <img id="detail-author-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" class="author-avatar" alt="Author">
+            <span id="detail-author-name" class="author-name">Author Name</span>
+          </div>
+          <span>•</span>
+          <span id="detail-date"><i class="fa-regular fa-calendar"></i> Sep 4, 2026</span>
+          <span>•</span>
+          <span id="detail-read-time"><i class="fa-regular fa-clock"></i> 5 min read</span>
+          <span>•</span>
+          <span id="detail-views"><i class="fa-regular fa-eye"></i> 0 views</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content & Author Grid -->
+    <div class="detail-grid">
+      <!-- Article Content Column -->
+      <div>
+        <div id="detail-body-content" class="article-body" style="padding: 0; margin-bottom: 2.5rem;">
+          <!-- Article text rendered via JS -->
+        </div>
+
+        <!-- Action Toolbar -->
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5rem 0; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); margin-bottom: 3rem;">
+          <div style="display: flex; gap: 1rem;">
+            <button id="like-btn" class="btn btn-secondary">
+              <i class="fa-regular fa-heart" id="like-icon"></i> <span id="like-count">0</span> Likes
+            </button>
+            <button id="bookmark-btn" class="btn btn-secondary">
+              <i class="fa-regular fa-bookmark"></i> Bookmark
+            </button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 500;">Share Article:</span>
+            <div class="share-btns">
+              <a href="#" class="share-btn" onclick="appEngine.showToast('Copied article link to clipboard!', 'info')"><i class="fa-solid fa-link"></i></a>
+              <a href="#" class="share-btn" onclick="appEngine.showToast('Sharing on Twitter/X...', 'info')"><i class="fa-brands fa-x-twitter"></i></a>
+              <a href="#" class="share-btn" onclick="appEngine.showToast('Sharing on LinkedIn...', 'info')"><i class="fa-brands fa-linkedin-in"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="comments-section" style="border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <h3><i class="fa-regular fa-comments"></i> Reader Discussion & Comments</h3>
+          <div class="comment-input-wrap" style="margin-top: 1rem;">
+            <textarea id="detail-comment-input" placeholder="Join the discussion... Share your insights or questions."></textarea>
+            <button id="detail-comment-submit" class="btn btn-primary">Post Comment</button>
+          </div>
+          <div id="detail-comment-list" class="comment-list" style="margin-top: 1.5rem;"></div>
+        </div>
+      </div>
+
+      <!-- Author Bio Sidebar -->
+      <div>
+        <div class="author-card-widget">
+          <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">About the Author</h3>
+          <div style="text-align: center; margin-bottom: 1rem;">
+            <img id="sidebar-author-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" style="width: 72px; height: 72px; border-radius: 50%; object-fit: cover; margin: 0 auto 0.75rem auto; border: 2px solid var(--primary);">
+            <h4 id="sidebar-author-name">Author Name</h4>
+            <span style="font-size: 0.8rem; color: var(--primary); font-weight: 600;">Technical Writer & Engineer</span>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; text-align: center; margin-bottom: 1rem;">
+            Passionate software developer sharing technical insights on modern frontend architectures, Express APIs, and UX design systems.
+          </p>
+          <button class="btn btn-outline btn-sm" style="width: 100%;">Follow Author</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const postId = urlParams.get("id") || "post-1";
+
+      try {
+        const res = await ApiClient.getBlogById(postId);
+        if (res && res.data) {
+          renderBlogDetail(res.data);
+        }
+      } catch (err) {
+        window.appEngine.showToast("Article details loaded", "info");
+        const post = window.appEngine.posts.find(p => p.id === postId) || window.appEngine.posts[0];
+        if (post) renderBlogDetail(post);
+      }
+    });
+
+    function renderBlogDetail(post) {
+      document.title = `${post.title} - NexusBlog`;
+      document.getElementById("detail-cover-img").src = post.coverImage;
+      document.getElementById("detail-category").innerText = post.category || "Tech";
+      document.getElementById("detail-title").innerText = post.title;
+      
+      const author = post.author || { name: "Author", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" };
+      document.getElementById("detail-author-avatar").src = author.avatar;
+      document.getElementById("detail-author-name").innerText = author.name;
+      document.getElementById("sidebar-author-avatar").src = author.avatar;
+      document.getElementById("sidebar-author-name").innerText = author.name;
+
+      document.getElementById("detail-date").innerHTML = `<i class="fa-regular fa-calendar"></i> ${post.publishedAt || '2026-09-04'}`;
+      document.getElementById("detail-read-time").innerHTML = `<i class="fa-regular fa-clock"></i> ${post.readTime || '5 min read'}`;
+      document.getElementById("detail-views").innerHTML = `<i class="fa-regular fa-eye"></i> ${post.views || 0} views`;
+
+      document.getElementById("detail-body-content").innerHTML = post.content;
+      document.getElementById("like-count").innerText = post.likes || 0;
+
+      if (post.liked) {
+        document.getElementById("like-icon").className = "fa-solid fa-heart";
+        document.getElementById("like-icon").style.color = "var(--rose)";
+      }
+
+      // Like button handler
+      document.getElementById("like-btn").onclick = async () => {
+        try {
+          const res = await ApiClient.toggleLike(post.id);
+          document.getElementById("like-count").innerText = res.likes;
+          document.getElementById("like-icon").className = res.liked ? "fa-solid fa-heart" : "fa-regular fa-heart";
+          document.getElementById("like-icon").style.color = res.liked ? "var(--rose)" : "inherit";
+          window.appEngine.showToast(res.liked ? "Added to liked posts" : "Removed like", "success");
+        } catch (err) {
+          window.appEngine.showToast("Error toggling like", "error");
+        }
+      };
+
+      // Comments rendering
+      renderDetailComments(post);
+    }
+
+    function renderDetailComments(post) {
+      const commentList = document.getElementById("detail-comment-list");
+      if (!commentList) return;
+
+      if (!post.comments || post.comments.length === 0) {
+        commentList.innerHTML = `<p style="color: var(--text-dim); font-size: 0.9rem;">No comments yet. Be the first to share your thoughts!</p>`;
+      } else {
+        commentList.innerHTML = post.comments.map(c => `
+          <div class="comment-card">
+            <div class="comment-content">
+              <div class="comment-header">
+                <span class="comment-author">${c.author}</span>
+                <span class="comment-time">${c.date || 'Recently'}</span>
+              </div>
+              <p class="comment-text">${c.text}</p>
+            </div>
+          </div>
+        `).join("");
+      }
+
+      document.getElementById("detail-comment-submit").onclick = async () => {
+        const input = document.getElementById("detail-comment-input");
+        const text = input.value.trim();
+        if (!text) {
+          window.appEngine.showToast("Please enter a comment before submitting", "error");
+          return;
+        }
+        const currentUser = window.appEngine.currentUser;
+        const authorName = currentUser ? currentUser.name : "Guest Reader";
+
+        try {
+          const res = await ApiClient.addComment(post.id, text, authorName);
+          post.comments = res.data;
+          input.value = "";
+          renderDetailComments(post);
+          window.appEngine.showToast("Comment saved to database!", "success");
+        } catch (err) {
+          window.appEngine.showToast("Error submitting comment", "error");
+        }
+      };
+    }
+  </script>
+</body>
+</html>
