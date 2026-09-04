@@ -1,5 +1,149 @@
 [
   {
+    "id": "post-1788533472004",
+    "title": "Module 4 CRUD Operations Guide (Updated)",
+    "slug": "module-4-crud-operations-guide-updated-",
+    "excerpt": "A complete walkthrough of Create, Read, Update, and Delete actions.",
+    "content": "Implementing full CRUD operations with Express and MongoDB allows seamless data manipulation.",
+    "category": "Web Dev",
+    "coverImage": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80",
+    "tags": [
+      "Web Dev",
+      "Frontend"
+    ],
+    "status": "published",
+    "author": {
+      "id": "usr_demo",
+      "name": "Alex Dev",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"
+    },
+    "publishedAt": "2026-09-04",
+    "readTime": "1 min read",
+    "views": 0,
+    "likes": 0,
+    "comments": []
+  },
+  {
+    "id": "post-1788533392323",
+    "title": "Module 4 CRUD Operations Guide (Updated)",
+    "slug": "module-4-crud-operations-guide-updated-",
+    "excerpt": "A complete walkthrough of Create, Read, Update, and Delete actions.",
+    "content": "Implementing full CRUD operations with Express and MongoDB allows seamless data manipulation.",
+    "category": "Web Dev",
+    "coverImage": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80",
+    "tags": [
+      "Web Dev",
+      "Frontend"
+    ],
+    "status": "published",
+    "author": {
+      "id": "usr_demo",
+      "name": "Alex Dev",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"
+    },
+    "publishedAt": "2026-09-04",
+    "readTime": "1 min read",
+    "views": 0,
+    "likes": 0,
+    "comments": []
+  },
+  {
+    "id": "post-1788533009248",
+    "title": "Module 4 CRUD Operations Guide",
+    "slug": "module-4-crud-operations-guide",
+    "excerpt": "A complete walkthrough of Create, Read, Update, and Delete actions.",
+    "content": "Implementing full CRUD operations with Express and MongoDB allows seamless data manipulation.",
+    "category": "Web Dev",
+    "coverImage": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80",
+    "tags": [
+      "Web Dev",
+      "Frontend"
+    ],
+    "status": "published",
+    "author": {
+      "id": "usr_demo",
+      "name": "Alex Dev",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"
+    },
+    "publishedAt": "2026-09-04",
+    "readTime": "1 min read",
+    "views": 0,
+    "likes": 0,
+    "comments": []
+  },
+  {
+    "id": "post-1788532905669",
+    "title": "Module 4 CRUD Operations Guide",
+    "slug": "module-4-crud-operations-guide",
+    "excerpt": "A complete walkthrough of Create, Read, Update, and Delete actions.",
+    "content": "Implementing full CRUD operations with Express and MongoDB allows seamless data manipulation.",
+    "category": "Web Dev",
+    "coverImage": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80",
+    "tags": [
+      "Web Dev",
+      "Frontend"
+    ],
+    "status": "published",
+    "author": {
+      "id": "usr_demo",
+      "name": "Alex Dev",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"
+    },
+    "publishedAt": "2026-09-04",
+    "readTime": "1 min read",
+    "views": 0,
+    "likes": 0,
+    "comments": []
+  },
+  {
+    "id": "post-1788532805280",
+    "title": "Module 4 CRUD Operations Guide",
+    "slug": "module-4-crud-operations-guide",
+    "excerpt": "A complete walkthrough of Create, Read, Update, and Delete actions.",
+    "content": "Implementing full CRUD operations with Express and MongoDB allows seamless data manipulation.",
+    "category": "Web Dev",
+    "coverImage": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80",
+    "tags": [
+      "Web Dev",
+      "Frontend"
+    ],
+    "status": "published",
+    "author": {
+      "id": "usr_demo",
+      "name": "Alex Dev",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"
+    },
+    "publishedAt": "2026-09-04",
+    "readTime": "1 min read",
+    "views": 0,
+    "likes": 0,
+    "comments": []
+  },
+  {
+    "id": "post-1788532759670",
+    "title": "Module 4 CRUD Operations Guide",
+    "slug": "module-4-crud-operations-guide",
+    "excerpt": "A complete walkthrough of Create, Read, Update, and Delete actions.",
+    "content": "Implementing full CRUD operations with Express and MongoDB allows seamless data manipulation.",
+    "category": "Design",
+    "coverImage": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80",
+    "tags": [
+      "Web Dev",
+      "Frontend"
+    ],
+    "status": "published",
+    "author": {
+      "id": "usr_demo",
+      "name": "Alex Dev",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"
+    },
+    "publishedAt": "2026-09-04",
+    "readTime": "1 min read",
+    "views": 0,
+    "likes": 0,
+    "comments": []
+  },
+  {
     "id": "post-1788531393071",
     "title": "Building Node.js & Express REST APIs",
     "slug": "building-node-js-express-rest-apis",

@@ -244,20 +244,19 @@
       `).join("");
     }
 
+    let currentCategory = "All";
+    let currentSearch = "";
+
     function setupCategoryPills() {
       const pills = document.querySelectorAll(".category-pills .pill");
       pills.forEach(pill => {
-        pill.addEventListener("click", () => {
+        pill.addEventListener("click", async () => {
           pills.forEach(p => p.classList.remove("active"));
           pill.classList.add("active");
-          const cat = pill.getAttribute("data-cat");
+          currentCategory = pill.getAttribute("data-cat");
           
-          if (cat === "All") {
-            renderPostsGrid(window.appEngine.posts);
-          } else {
-            const filtered = window.appEngine.posts.filter(p => p.category === cat);
-            renderPostsGrid(filtered);
-          }
+          const posts = await window.appEngine.fetchPosts(currentCategory, currentSearch);
+          renderPostsGrid(posts);
         });
       });
     }
@@ -265,14 +264,14 @@
     function setupSearchInput() {
       const searchInput = document.getElementById("home-search-input");
       if (searchInput) {
+        let debounceTimer;
         searchInput.addEventListener("input", (e) => {
-          const query = e.target.value.toLowerCase().trim();
-          const filtered = window.appEngine.posts.filter(p => 
-            p.title.toLowerCase().includes(query) || 
-            p.excerpt.toLowerCase().includes(query) ||
-            p.category.toLowerCase().includes(query)
-          );
-          renderPostsGrid(filtered);
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(async () => {
+            currentSearch = e.target.value.trim();
+            const posts = await window.appEngine.fetchPosts(currentCategory, currentSearch);
+            renderPostsGrid(posts);
+          }, 250);
         });
       }
     }
