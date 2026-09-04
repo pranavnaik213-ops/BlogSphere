@@ -2,15 +2,27 @@
    NexusBlog - Create / Edit Blog Editor Controller (REST API Connected)
    ========================================================================== */
 
-document.addEventListener("DOMContentLoaded", () => {
-  const currentUser = window.appEngine.currentUser;
-  
-  if (!currentUser) {
+document.addEventListener("DOMContentLoaded", async () => {
+  if (!ApiClient.isAuthenticated()) {
     window.appEngine.showToast("Please log in to create or edit blogs", "error");
-    setTimeout(() => window.location.href = "login.html", 1000);
+    setTimeout(() => window.location.href = "login.html", 800);
     return;
   }
 
+  try {
+    const authRes = await ApiClient.getMe();
+    if (authRes && authRes.user) {
+      window.appEngine.currentUser = authRes.user;
+      localStorage.setItem("nexus_session", JSON.stringify(authRes.user));
+    }
+  } catch (err) {
+    window.appEngine.showToast("Session expired. Please log in again.", "error");
+    ApiClient.removeToken();
+    setTimeout(() => window.location.href = "login.html", 800);
+    return;
+  }
+
+  const currentUser = window.appEngine.currentUser;
   initEditor(currentUser);
 });
 

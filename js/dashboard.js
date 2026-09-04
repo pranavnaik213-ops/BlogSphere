@@ -1,16 +1,29 @@
 /* ==========================================================================
-   NexusBlog - Dashboard Controller (REST API Connected)
+   NexusBlog - Private Dashboard Controller (JWT Protected & User-Isolated)
    ========================================================================== */
 
-document.addEventListener("DOMContentLoaded", () => {
-  const currentUser = window.appEngine.currentUser;
-  
-  if (!currentUser) {
-    window.appEngine.showToast("Please log in to access your dashboard", "error");
-    setTimeout(() => window.location.href = "login.html", 1000);
+document.addEventListener("DOMContentLoaded", async () => {
+  // Enforce private route protection
+  if (!ApiClient.isAuthenticated()) {
+    window.appEngine.showToast("Please log in to access your private dashboard", "error");
+    setTimeout(() => window.location.href = "login.html", 800);
     return;
   }
 
+  try {
+    const authRes = await ApiClient.getMe();
+    if (authRes && authRes.user) {
+      window.appEngine.currentUser = authRes.user;
+      localStorage.setItem("nexus_session", JSON.stringify(authRes.user));
+    }
+  } catch (err) {
+    window.appEngine.showToast("Session expired. Please log in again.", "error");
+    ApiClient.removeToken();
+    setTimeout(() => window.location.href = "login.html", 800);
+    return;
+  }
+
+  const currentUser = window.appEngine.currentUser;
   initDashboard(currentUser);
 });
 
@@ -37,8 +50,8 @@ async function loadDashboardData(user) {
       renderUserPostsTable(userPostsData);
     }
   } catch (err) {
-    console.warn("Backend user API error, using fallback state:", err.message);
-    const posts = window.appEngine.posts.filter(p => p.author && p.author.name === user.name);
+    console.warn("Backend user API error, using isolated user state:", err.message);
+    const posts = window.appEngine.posts.filter(p => p.author && (p.author.id === user.id || p.author.name === user.name));
     userPostsData = posts;
     const totalPosts = posts.length;
     const totalViews = posts.reduce((sum, p) => sum + (p.views || 0), 0);
@@ -66,7 +79,7 @@ function renderUserPostsTable(postsList) {
       <tr>
         <td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-dim);">
           <i class="fa-solid fa-folder-open" style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-          <p>No blog posts found.</p>
+          <p>You haven't written any blog posts yet.</p>
           <a href="create-blog.html" class="btn btn-primary btn-sm" style="margin-top: 1rem;">Create Your First Blog</a>
         </td>
       </tr>

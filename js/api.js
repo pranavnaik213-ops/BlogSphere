@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NexusBlog - Frontend API Client (Module 2 Backend Integration)
+   NexusBlog - Frontend API Client (Module 5 Auth & Route Protection)
    ========================================================================== */
 
 const API_BASE_URL = "http://localhost:5000/api";
@@ -18,6 +18,10 @@ class ApiClient {
     localStorage.removeItem("nexus_session");
   }
 
+  static isAuthenticated() {
+    return !!this.getToken();
+  }
+
   static async request(endpoint, options = {}) {
     const url = `${API_BASE_URL}${endpoint}`;
     const token = this.getToken();
@@ -34,6 +38,11 @@ class ApiClient {
     try {
       const response = await fetch(url, { ...options, headers });
       const data = await response.json();
+
+      if (response.status === 401 && !endpoint.includes("/auth/login") && !endpoint.includes("/auth/register")) {
+        console.warn("JWT Session expired or unauthorized access.");
+        this.removeToken();
+      }
 
       if (!response.ok) {
         throw new Error(data.message || `HTTP Error ${response.status}`);
