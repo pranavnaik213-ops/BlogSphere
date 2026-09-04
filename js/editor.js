@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NexusBlog - Create / Edit Blog Editor Controller
+   NexusBlog - Create / Edit Blog Editor Controller (REST API Connected)
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -17,8 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
 let editorTags = ["Web Dev", "Frontend"];
 let editingPostId = null;
 
-function initEditor(user) {
-  // Check if URL has ?id=POST_ID for editing
+async function initEditor(user) {
   const urlParams = new URLSearchParams(window.location.search);
   editingPostId = urlParams.get("id");
 
@@ -29,12 +28,19 @@ function initEditor(user) {
   setupPublishHandlers(user);
 
   if (editingPostId) {
-    loadPostForEditing(editingPostId);
+    await loadPostForEditing(editingPostId);
   }
 }
 
-function loadPostForEditing(postId) {
-  const post = window.appEngine.posts.find(p => p.id === postId);
+async function loadPostForEditing(postId) {
+  let post = null;
+  try {
+    const res = await ApiClient.getBlogById(postId);
+    post = res.data;
+  } catch (err) {
+    post = window.appEngine.posts.find(p => p.id === postId);
+  }
+
   if (!post) {
     window.appEngine.showToast("Post not found", "error");
     return;
@@ -47,7 +53,6 @@ function loadPostForEditing(postId) {
   document.getElementById("blog-excerpt").value = post.excerpt;
   document.getElementById("blog-content").value = post.content;
   
-  // Set cover preview image
   const previewImg = document.getElementById("cover-preview-img");
   const previewPlaceholder = document.getElementById("cover-preview-placeholder");
   if (previewImg && previewPlaceholder) {
@@ -56,7 +61,6 @@ function loadPostForEditing(postId) {
     previewPlaceholder.style.display = "none";
   }
 
-  // Tags
   if (post.tags && Array.isArray(post.tags)) {
     editorTags = [...post.tags];
   } else {
@@ -171,22 +175,7 @@ function setupLivePreview() {
     const coverImage = document.getElementById("cover-url").value || "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80";
     const content = document.getElementById("blog-content").value || "<p>Start writing your blog content...</p>";
 
-    const tempPost = {
-      id: "preview_temp",
-      title: title,
-      category: category,
-      coverImage: coverImage,
-      content: content,
-      author: window.appEngine.currentUser,
-      publishedAt: "Preview Mode",
-      readTime: "3 min read",
-      views: 0,
-      likes: 0,
-      comments: []
-    };
-
     window.appEngine.openArticleModal("preview_temp");
-    // Inject preview post manually into modal
     const modal = document.getElementById("article-modal");
     if (modal) {
       modal.querySelector(".article-header").innerHTML = `
@@ -220,7 +209,7 @@ function setupPublishHandlers(user) {
   }
 }
 
-function savePost(user, status = "published") {
+async function savePost(user, status = "published") {
   const title = document.getElementById("blog-title").value.trim();
   const category = document.getElementById("blog-category").value;
   const coverImage = document.getElementById("cover-url").value.trim() || 
@@ -234,49 +223,26 @@ function savePost(user, status = "published") {
     return;
   }
 
-  const posts = window.appEngine.posts;
+  const blogPayload = {
+    title,
+    category,
+    coverImage,
+    excerpt,
+    content,
+    tags: [...editorTags],
+    status
+  };
 
-  if (editingPostId) {
-    const index = posts.findIndex(p => p.id === editingPostId);
-    if (index !== -1) {
-      posts[index] = {
-        ...posts[index],
-        title,
-        category,
-        coverImage,
-        excerpt,
-        content,
-        tags: [...editorTags],
-        status: status
-      };
-      window.appEngine.savePosts();
-      window.appEngine.showToast(`Post updated successfully!`, "success");
+  try {
+    if (editingPostId) {
+      await ApiClient.updateBlog(editingPostId, blogPayload);
+      window.appEngine.showToast("Blog post updated via Express REST API!", "success");
+    } else {
+      await ApiClient.createBlog(blogPayload);
+      window.appEngine.showToast(status === "draft" ? "Saved as draft via REST API!" : "Blog published via Express REST API!", "success");
     }
-  } else {
-    const newPost = {
-      id: "post-" + Date.now(),
-      title,
-      slug: title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-      category,
-      coverImage,
-      excerpt,
-      content,
-      tags: [...editorTags],
-      status: status,
-      author: {
-        name: user.name,
-        avatar: user.avatar
-      },
-      publishedAt: new Date().toISOString().split("T")[0],
-      readTime: Math.ceil(content.split(" ").length / 200) + " min read",
-      views: 0,
-      likes: 0,
-      comments: []
-    };
-    posts.unshift(newPost);
-    window.appEngine.savePosts();
-    window.appEngine.showToast(status === "draft" ? "Saved as draft!" : "Blog published successfully!", "success");
+    setTimeout(() => window.location.href = "dashboard.html", 1000);
+  } catch (err) {
+    window.appEngine.showToast(err.message || "Failed to save blog post", "error");
   }
-
-  setTimeout(() => window.location.href = "dashboard.html", 1000);
 }

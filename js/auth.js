@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NexusBlog - Auth Engine (Login & Registration Controller)
+   NexusBlog - Auth Engine (REST API Connected)
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -16,22 +16,20 @@ function initAuthForm() {
 
   // Demo Login Handler
   if (demoLoginBtn) {
-    demoLoginBtn.addEventListener("click", () => {
-      const demoUser = {
-        id: "usr_demo",
-        name: "Alex Dev",
-        email: "demo@nexus.com",
-        avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"
-      };
-      localStorage.setItem("nexus_session", JSON.stringify(demoUser));
-      window.appEngine.showToast("Logged in as Demo User!", "success");
-      setTimeout(() => window.location.href = "dashboard.html", 800);
+    demoLoginBtn.addEventListener("click", async () => {
+      try {
+        const response = await ApiClient.login("demo@nexus.com", "password123");
+        window.appEngine.showToast("Logged in via Express REST API!", "success");
+        setTimeout(() => window.location.href = "dashboard.html", 800);
+      } catch (err) {
+        window.appEngine.showToast(err.message || "Login failed", "error");
+      }
     });
   }
 
   // Login Form Submission
   if (loginForm) {
-    loginForm.addEventListener("submit", (e) => {
+    loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
@@ -41,29 +39,19 @@ function initAuthForm() {
         return;
       }
 
-      // Check registered users
-      const users = JSON.parse(localStorage.getItem("nexus_users") || "[]");
-      const user = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
-
-      if (user || (email === "demo@nexus.com" && password === "password123")) {
-        const sessionUser = user || {
-          id: "usr_demo",
-          name: "Alex Dev",
-          email: "demo@nexus.com",
-          avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"
-        };
-        localStorage.setItem("nexus_session", JSON.stringify(sessionUser));
-        window.appEngine.showToast(`Welcome back, ${sessionUser.name}!`, "success");
+      try {
+        const response = await ApiClient.login(email, password);
+        window.appEngine.showToast(`Welcome back, ${response.user.name}!`, "success");
         setTimeout(() => window.location.href = "dashboard.html", 800);
-      } else {
-        window.appEngine.showToast("Invalid email or password", "error");
+      } catch (err) {
+        window.appEngine.showToast(err.message || "Invalid email or password", "error");
       }
     });
   }
 
   // Register Form Submission
   if (registerForm) {
-    registerForm.addEventListener("submit", (e) => {
+    registerForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = document.getElementById("reg-name").value.trim();
       const email = document.getElementById("reg-email").value.trim();
@@ -87,28 +75,13 @@ function initAuthForm() {
         return;
       }
 
-      const users = JSON.parse(localStorage.getItem("nexus_users") || "[]");
-      if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
-        window.appEngine.showToast("An account with this email already exists", "error");
-        return;
+      try {
+        const response = await ApiClient.register(name, email, password, selectedAvatar);
+        window.appEngine.showToast("Account created via Express REST API!", "success");
+        setTimeout(() => window.location.href = "dashboard.html", 800);
+      } catch (err) {
+        window.appEngine.showToast(err.message || "Registration failed", "error");
       }
-
-      const newUser = {
-        id: "usr_" + Date.now(),
-        name: name,
-        email: email,
-        password: password,
-        avatar: selectedAvatar,
-        registeredAt: new Date().toISOString()
-      };
-
-      users.push(newUser);
-      localStorage.setItem("nexus_users", JSON.stringify(users));
-
-      // Auto login user
-      localStorage.setItem("nexus_session", JSON.stringify(newUser));
-      window.appEngine.showToast("Account created successfully!", "success");
-      setTimeout(() => window.location.href = "dashboard.html", 800);
     });
   }
 }

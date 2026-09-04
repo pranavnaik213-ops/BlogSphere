@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NexusBlog - Dashboard Controller
+   NexusBlog - Dashboard Controller (REST API Connected)
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -14,51 +14,54 @@ document.addEventListener("DOMContentLoaded", () => {
   initDashboard(currentUser);
 });
 
-function initDashboard(user) {
-  // Update header greetings
+let userPostsData = [];
+
+async function initDashboard(user) {
   const welcomeTitle = document.getElementById("welcome-title");
   if (welcomeTitle) {
     welcomeTitle.innerText = `Welcome back, ${user.name}! 👋`;
   }
 
-  renderStats(user);
-  renderUserPostsTable(user);
+  await loadDashboardData(user);
   setupSearchAndFilters(user);
 }
 
-function renderStats(user) {
-  const posts = window.appEngine.posts;
-  // User posts match author name or ID
-  const userPosts = posts.filter(p => p.author && p.author.name === user.name);
+async function loadDashboardData(user) {
+  try {
+    const res = await ApiClient.getUserBlogsAndStats();
+    if (res && res.stats) {
+      renderStats(res.stats);
+    }
+    if (res && res.data) {
+      userPostsData = res.data;
+      renderUserPostsTable(userPostsData);
+    }
+  } catch (err) {
+    console.warn("Backend user API error, using fallback state:", err.message);
+    const posts = window.appEngine.posts.filter(p => p.author && p.author.name === user.name);
+    userPostsData = posts;
+    const totalPosts = posts.length;
+    const totalViews = posts.reduce((sum, p) => sum + (p.views || 0), 0);
+    const totalLikes = posts.reduce((sum, p) => sum + (p.likes || 0), 0);
+    const draftCount = posts.filter(p => p.status === "draft").length;
 
-  const totalPosts = userPosts.length;
-  const totalViews = userPosts.reduce((sum, p) => sum + (p.views || 0), 0);
-  const totalLikes = userPosts.reduce((sum, p) => sum + (p.likes || 0), 0);
-  const draftCount = userPosts.filter(p => p.status === "draft").length;
-
-  document.getElementById("stat-total-posts").innerText = totalPosts;
-  document.getElementById("stat-total-views").innerText = totalViews.toLocaleString();
-  document.getElementById("stat-total-likes").innerText = totalLikes.toLocaleString();
-  document.getElementById("stat-drafts").innerText = draftCount;
+    renderStats({ totalPosts, totalViews, totalLikes, draftCount });
+    renderUserPostsTable(userPostsData);
+  }
 }
 
-function renderUserPostsTable(user, filterStatus = "all", searchQuery = "") {
+function renderStats(stats) {
+  document.getElementById("stat-total-posts").innerText = stats.totalPosts || 0;
+  document.getElementById("stat-total-views").innerText = (stats.totalViews || 0).toLocaleString();
+  document.getElementById("stat-total-likes").innerText = (stats.totalLikes || 0).toLocaleString();
+  document.getElementById("stat-drafts").innerText = stats.draftCount || 0;
+}
+
+function renderUserPostsTable(postsList) {
   const tableBody = document.getElementById("dashboard-posts-body");
   if (!tableBody) return;
 
-  let posts = window.appEngine.posts.filter(p => p.author && p.author.name === user.name);
-
-  if (filterStatus === "published") {
-    posts = posts.filter(p => p.status !== "draft");
-  } else if (filterStatus === "draft") {
-    posts = posts.filter(p => p.status === "draft");
-  }
-
-  if (searchQuery) {
-    posts = posts.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()));
-  }
-
-  if (posts.length === 0) {
+  if (!postsList || postsList.length === 0) {
     tableBody.innerHTML = `
       <tr>
         <td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-dim);">
@@ -71,7 +74,7 @@ function renderUserPostsTable(user, filterStatus = "all", searchQuery = "") {
     return;
   }
 
-  tableBody.innerHTML = posts.map(post => {
+  tableBody.innerHTML = postsList.map(post => {
     const isDraft = post.status === "draft";
     return `
       <tr>
@@ -107,17 +110,26 @@ function setupSearchAndFilters(user) {
   const searchInput = document.getElementById("dashboard-search");
   const filterSelect = document.getElementById("dashboard-filter");
 
-  if (searchInput) {
-    searchInput.addEventListener("input", (e) => {
-      renderUserPostsTable(user, filterSelect ? filterSelect.value : "all", e.target.value);
-    });
-  }
+  const filterAction = () => {
+    let filtered = [...userPostsData];
+    const statusVal = filterSelect ? filterSelect.value : "all";
+    const query = searchInput ? searchInput.value.toLowerCase() : "";
 
-  if (filterSelect) {
-    filterSelect.addEventListener("change", (e) => {
-      renderUserPostsTable(user, e.target.value, searchInput ? searchInput.value : "");
-    });
-  }
+    if (statusVal === "published") {
+      filtered = filtered.filter(p => p.status !== "draft");
+    } else if (statusVal === "draft") {
+      filtered = filtered.filter(p => p.status === "draft");
+    }
+
+    if (query) {
+      filtered = filtered.filter(p => p.title.toLowerCase().includes(query));
+    }
+
+    renderUserPostsTable(filtered);
+  };
+
+  if (searchInput) searchInput.addEventListener("input", filterAction);
+  if (filterSelect) filterSelect.addEventListener("change", filterAction);
 }
 
 // Global action helpers
@@ -125,12 +137,14 @@ window.viewPost = (id) => {
   window.appEngine.openArticleModal(id);
 };
 
-window.confirmDeletePost = (id) => {
+window.confirmDeletePost = async (id) => {
   if (confirm("Are you sure you want to delete this blog post? This action cannot be undone.")) {
-    window.appEngine.posts = window.appEngine.posts.filter(p => p.id !== id);
-    window.appEngine.savePosts();
-    window.appEngine.showToast("Blog post deleted successfully", "success");
-    renderStats(window.appEngine.currentUser);
-    renderUserPostsTable(window.appEngine.currentUser);
+    try {
+      await ApiClient.deleteBlog(id);
+      window.appEngine.showToast("Blog post deleted via Express REST API", "success");
+      await loadDashboardData(window.appEngine.currentUser);
+    } catch (err) {
+      window.appEngine.showToast("Error deleting blog post", "error");
+    }
   }
 };

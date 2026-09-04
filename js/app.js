@@ -1,98 +1,6 @@
 /* ==========================================================================
-   NexusBlog - App Core Engine & State Manager
+   NexusBlog - App Core Engine & State Manager (Backend API Connected)
    ========================================================================== */
-
-const INITIAL_POSTS = [
-  {
-    id: "post-1",
-    title: "Mastering Modern Web Architecture: HTML5, CSS3, and ES6+",
-    slug: "mastering-modern-web-architecture",
-    excerpt: "Explore the core foundational pillars of front-end development, responsive layouts, modular CSS architectures, and dynamic user interfaces.",
-    content: `<p>Web development has undergone a massive transformation in recent years. With HTML5 semantic structures, advanced CSS3 capabilities like Grid and Flexbox, and modern JavaScript standards, building application interfaces is more expressive than ever.</p>
-    <h2>Key Components of Modern Web Apps</h2>
-    <p>Designing modern user experiences demands clarity, performance, and responsive design systems. By leveraging CSS custom properties, component-driven layouts, and modular state management, developers can craft rich applications without heavy external frameworks.</p>
-    <blockquote>"Great front-end development is where clean code meets stunning visual aesthetics."</blockquote>
-    <p>Start with solid semantic tags like <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code>, and <code>&lt;article&gt;</code>, then construct custom CSS tokens for scalable color palettes and fluid typography.</p>`,
-    category: "Web Dev",
-    coverImage: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80",
-    author: {
-      name: "Pranav Sharma",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
-    },
-    publishedAt: "2026-09-04",
-    readTime: "5 min read",
-    views: 1420,
-    likes: 384,
-    bookmarked: false,
-    liked: false,
-    comments: [
-      { id: "c1", author: "Alex Rivers", text: "This article is super insightful! Love the breakdown of CSS variables.", date: "2 hours ago" },
-      { id: "c2", author: "Sarah Lin", text: "Very clear explanation of semantic HTML structures.", date: "5 hours ago" }
-    ]
-  },
-  {
-    id: "post-2",
-    title: "Designing Glassmorphic & Cyberpunk UI Systems",
-    slug: "designing-glassmorphic-cyberpunk-ui",
-    excerpt: "Learn how to combine dark modes, backdrop blur filters, glowing neon borders, and dynamic hover animations for high-impact visual design.",
-    content: `<p>Glassmorphism and cyber-inspired UI designs create immersive digital experiences. Through strategic use of translucency, ambient background gradients, and micro-interactions, interfaces come to life.</p>
-    <h2>Implementing Backdrop Blur</h2>
-    <p>Using standard CSS, setting <code>backdrop-filter: blur(16px)</code> with semi-transparent background colors allows elements to blend smoothly into background artwork.</p>`,
-    category: "Design",
-    coverImage: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80",
-    author: {
-      name: "Maya Vance",
-      avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80"
-    },
-    publishedAt: "2026-09-03",
-    readTime: "4 min read",
-    views: 980,
-    likes: 256,
-    bookmarked: false,
-    liked: false,
-    comments: []
-  },
-  {
-    id: "post-3",
-    title: "Building Intelligent Web Applications with Generative AI APIs",
-    slug: "building-intelligent-web-applications-ai",
-    excerpt: "A beginner-friendly guide to integrating intelligent AI subagents, context retrieval systems, and real-time interaction flows into web interfaces.",
-    content: `<p>Generative AI tools are reshaping how developers construct features. From automatic text summarization to automated content creation, AI APIs provide exciting capabilities for front-end engineers.</p>`,
-    category: "AI",
-    coverImage: "https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=1200&q=80",
-    author: {
-      name: "David Chen",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
-    },
-    publishedAt: "2026-09-02",
-    readTime: "7 min read",
-    views: 2150,
-    likes: 512,
-    bookmarked: false,
-    liked: false,
-    comments: []
-  },
-  {
-    id: "post-4",
-    title: "10 Essential Responsive CSS Layout Techniques Every Developer Should Know",
-    slug: "10-essential-responsive-css-layout-techniques",
-    excerpt: "From CSS Grid auto-fit auto-fill magic to clamp() fluid typography, master the modern tools for layout perfection across screen sizes.",
-    content: `<p>Responsive layout design ensures your application looks flawless on mobile, tablet, and desktop monitors alike. Let's cover key layout practices.</p>`,
-    category: "Tech",
-    coverImage: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80",
-    author: {
-      name: "Elena Rostova",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80"
-    },
-    publishedAt: "2026-09-01",
-    readTime: "6 min read",
-    views: 1890,
-    likes: 420,
-    bookmarked: false,
-    liked: false,
-    comments: []
-  }
-];
 
 class AppEngine {
   constructor() {
@@ -103,27 +11,36 @@ class AppEngine {
     this.init();
   }
 
-  init() {
-    // Load Posts from LocalStorage or seed defaults
-    const storedPosts = localStorage.getItem("nexus_posts");
-    if (!storedPosts) {
-      this.posts = INITIAL_POSTS;
-      localStorage.setItem("nexus_posts", JSON.stringify(this.posts));
-    } else {
-      this.posts = JSON.parse(storedPosts);
-    }
-
+  async init() {
     // Load User Session
     const userSession = localStorage.getItem("nexus_session");
     if (userSession) {
       this.currentUser = JSON.parse(userSession);
     }
 
-    // Theme initialization
-    this.initTheme();
+    // Initialize posts from Express REST API
+    await this.fetchPosts();
 
-    // Event listeners for global elements
+    // Theme initialization & event listeners
+    this.initTheme();
     this.setupGlobalListeners();
+  }
+
+  async fetchPosts(category = "All", search = "") {
+    try {
+      const response = await ApiClient.getBlogs(category, search);
+      if (response && response.data) {
+        this.posts = response.data;
+        return response.data;
+      }
+    } catch (err) {
+      console.warn("Backend API offline, using fallback posts state.");
+      const storedPosts = localStorage.getItem("nexus_posts");
+      if (storedPosts) {
+        this.posts = JSON.parse(storedPosts);
+      }
+    }
+    return this.posts;
   }
 
   initTheme() {
@@ -151,10 +68,6 @@ class AppEngine {
     this.showToast(`Switched to ${next} theme mode`, "info");
   }
 
-  savePosts() {
-    localStorage.setItem("nexus_posts", JSON.stringify(this.posts));
-  }
-
   showToast(message, type = "info") {
     let container = document.getElementById("toast-container");
     if (!container) {
@@ -177,13 +90,11 @@ class AppEngine {
   }
 
   setupGlobalListeners() {
-    // Theme toggle button
     const themeBtn = document.getElementById("theme-toggle");
     if (themeBtn) {
       themeBtn.addEventListener("click", () => this.toggleTheme());
     }
 
-    // User Avatar Dropdown toggle
     const avatarBtn = document.getElementById("user-avatar-btn");
     const dropdown = document.getElementById("user-dropdown");
     if (avatarBtn && dropdown) {
@@ -192,15 +103,6 @@ class AppEngine {
         dropdown.classList.toggle("show");
       });
       document.addEventListener("click", () => dropdown.classList.remove("show"));
-    }
-
-    // Mobile Navigation Toggle
-    const mobileBtn = document.getElementById("mobile-menu-btn");
-    const navLinks = document.getElementById("nav-links");
-    if (mobileBtn && navLinks) {
-      mobileBtn.addEventListener("click", () => {
-        navLinks.classList.toggle("active-mobile");
-      });
     }
   }
 
@@ -227,11 +129,10 @@ class AppEngine {
           </div>
         </div>
       `;
-      // Re-bind listeners
       this.initTheme();
       this.setupGlobalListeners();
       document.getElementById("logout-btn")?.addEventListener("click", () => {
-        localStorage.removeItem("nexus_session");
+        ApiClient.removeToken();
         this.showToast("Logged out successfully", "info");
         setTimeout(() => window.location.href = "index.html", 800);
       });
@@ -248,14 +149,18 @@ class AppEngine {
     }
   }
 
-  toggleLike(postId) {
-    const post = this.posts.find(p => p.id === postId);
-    if (!post) return;
-
-    post.liked = !post.liked;
-    post.likes += post.liked ? 1 : -1;
-    this.savePosts();
-    this.showToast(post.liked ? "Added to liked posts" : "Removed like", "success");
+  async toggleLike(postId) {
+    try {
+      const res = await ApiClient.toggleLike(postId);
+      const post = this.posts.find(p => p.id === postId);
+      if (post) {
+        post.liked = res.liked;
+        post.likes = res.likes;
+      }
+      this.showToast(res.liked ? "Added to liked posts" : "Removed like", "success");
+    } catch (err) {
+      this.showToast("Failed to toggle like", "error");
+    }
   }
 
   toggleBookmark(postId) {
@@ -263,43 +168,44 @@ class AppEngine {
     if (!post) return;
 
     post.bookmarked = !post.bookmarked;
-    this.savePosts();
     this.showToast(post.bookmarked ? "Post saved to bookmarks" : "Post removed from bookmarks", "info");
   }
 
-  openArticleModal(postId) {
-    const post = this.posts.find(p => p.id === postId);
-    if (!post) return;
+  async openArticleModal(postId) {
+    let post = null;
+    try {
+      const res = await ApiClient.getBlogById(postId);
+      post = res.data;
+    } catch (err) {
+      post = this.posts.find(p => p.id === postId);
+    }
 
-    post.views += 1;
-    this.savePosts();
+    if (!post) return;
 
     const modal = document.getElementById("article-modal");
     if (!modal) return;
 
     modal.querySelector(".article-header").innerHTML = `
-      <span class="card-badge">${post.category}</span>
+      <span class="card-badge">${post.category || 'Tech'}</span>
       <h1 class="article-title">${post.title}</h1>
       <div class="card-meta">
         <div class="author-info">
-          <img src="${post.author.avatar}" class="author-avatar" alt="${post.author.name}">
-          <span class="author-name">${post.author.name}</span>
+          <img src="${post.author ? post.author.avatar : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}" class="author-avatar" alt="Author">
+          <span class="author-name">${post.author ? post.author.name : 'Author'}</span>
         </div>
         <span>•</span>
         <span>${post.publishedAt}</span>
         <span>•</span>
         <span><i class="fa-regular fa-clock"></i> ${post.readTime}</span>
         <span>•</span>
-        <span><i class="fa-regular fa-eye"></i> ${post.views} views</span>
+        <span><i class="fa-regular fa-eye"></i> ${post.views || 0} views</span>
       </div>
     `;
 
     modal.querySelector("#modal-cover-img").src = post.coverImage;
     modal.querySelector("#modal-article-body").innerHTML = post.content;
     
-    // Render comments inside modal
     this.renderModalComments(post);
-
     modal.classList.add("active");
     document.body.style.overflow = "hidden";
   }
@@ -324,7 +230,7 @@ class AppEngine {
           <div class="comment-content">
             <div class="comment-header">
               <span class="comment-author">${c.author}</span>
-              <span class="comment-time">${c.date}</span>
+              <span class="comment-time">${c.date || 'Recently'}</span>
             </div>
             <p class="comment-text">${c.text}</p>
           </div>
@@ -332,35 +238,31 @@ class AppEngine {
       `).join("");
     }
 
-    // Attach comment submit button
     const submitBtn = document.getElementById("modal-comment-submit");
     const commentInput = document.getElementById("modal-comment-input");
     
     if (submitBtn && commentInput) {
-      submitBtn.onclick = () => {
+      submitBtn.onclick = async () => {
         const text = commentInput.value.trim();
         if (!text) {
           this.showToast("Please enter a comment before posting", "error");
           return;
         }
         const authorName = this.currentUser ? this.currentUser.name : "Guest Reader";
-        if (!post.comments) post.comments = [];
-        post.comments.unshift({
-          id: "c_" + Date.now(),
-          author: authorName,
-          text: text,
-          date: "Just now"
-        });
-        this.savePosts();
-        commentInput.value = "";
-        this.renderModalComments(post);
-        this.showToast("Comment published!", "success");
+        try {
+          const res = await ApiClient.addComment(post.id, text, authorName);
+          post.comments = res.data;
+          commentInput.value = "";
+          this.renderModalComments(post);
+          this.showToast("Comment published via REST API!", "success");
+        } catch (err) {
+          this.showToast("Error adding comment", "error");
+        }
       };
     }
   }
 }
 
-// Global App Instance
 window.appEngine = new AppEngine();
 document.addEventListener("DOMContentLoaded", () => {
   window.appEngine.renderAuthNav();

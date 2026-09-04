@@ -180,10 +180,12 @@
   </footer>
 
   <!-- Scripts -->
+  <script src="js/api.js"></script>
   <script src="js/app.js"></script>
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      renderPostsGrid(window.appEngine.posts);
+    document.addEventListener("DOMContentLoaded", async () => {
+      const posts = await window.appEngine.fetchPosts();
+      renderPostsGrid(posts);
       setupCategoryPills();
       setupSearchInput();
     });
